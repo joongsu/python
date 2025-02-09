@@ -1,7 +1,7 @@
 import pandas as pd
 from pymongo import MongoClient
 
-# ✅ 1. MongoDB 연결
+# MongoDB 연결
 client = MongoClient("mongodb+srv://gjs4565:gn91040827@tlogdest.nacbs.mongodb.net/")
 db = client["tlog"] # "tlog" db 선택 
 destinations_col = db["destinations"]   #"destinations" 컬렉션 선택
