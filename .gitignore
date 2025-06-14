@@ -1,0 +1,10 @@
+# Firebase 서비스 계정 키
+*.json
+
+# csv 파일
+*.csv
+
+#가상환경무시
+tlog_py/
+
+*.txt

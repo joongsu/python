@@ -5,7 +5,8 @@ from pymongo import MongoClient
 
 
 # MongoDB 연결
-client = MongoClient("mongodb+srv://gjs4565:gn91040827@tlogdest.nacbs.mongodb.net/")
+# 이 자리에 temp 파일에 있는 코드 넣을 것
+
 db = client["tlog"] # "tlog" db 선택 
 destinations_col = db["destinations"]   #"destinations" 컬렉션 선택
 tags_col = db["tags"]   # "tags" 컬렉션 선택
@@ -14,7 +15,6 @@ csv_folder_path = "/Users/gojungsu/Desktop/pystudy/csvs"
 
 csv_files = glob.glob(os.path.join(csv_folder_path,"*.csv"))
 
-df = pd.read_csv("/workspaces/python/destination.csv") # 여행지 정보 df 변수 저장
 
 for csv_file in csv_files:
     df = pd.read_csv(csv_file)
@@ -22,8 +22,20 @@ for csv_file in csv_files:
     bulk_destinations = []
     
     for index, row in df.iterrows():
-        tag_names = row["tagNames"].split(",")
-        tag_weights = list(map(int,row["weight"].split(",")))
+        tag_names_raw = row["tagNames"]
+
+        if isinstance(tag_names_raw, str) and "," in tag_names_raw:
+            tag_names = tag_names_raw.split(",")
+        else:
+            tag_names = [tag_names_raw]
+
+        weight = row["weight"]
+        if pd.isna(weight):
+            tag_weights = []
+        elif isinstance(weight, str) and "," in weight:
+            tag_weights = list(map(int, weight.split(",")))
+        else:
+            tag_weights = [int(weight)]
     
         tags = []
         for tag_name, weight in zip(tag_names,tag_weights):
@@ -36,8 +48,13 @@ for csv_file in csv_files:
             "name": row["name"],
             "address": row["address"],
             "city": row["city"],
+            "district": row["district"],
             "location": {"longitude": row["longitude"], "latitude": row["latitude"]},
-            "rating": row["rating"],
+            "ratingSum": row.get("ratingSum", 0),
+            "reviewCount": row.get("reviewCount", 0),
+            "averageRating": row.get("averageRating", 0.0),
+            "imageUrl": row["image"],
+            "description": row.get("description", ""),
             "hasParking": row["hasParking"],
             "petFriendly": row["petFriendly"],
             "tags": tags,
